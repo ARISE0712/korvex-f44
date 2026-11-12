@@ -1,6 +1,6 @@
 // Offline-Speicher mit automatischem Update.
 // Spielseite: zuerst aus dem Netz (dann ist immer die neueste Fassung da), ohne Netz die zuletzt geladene.
-const CACHE = 'frontlinie-711d3965edef';
+const CACHE = 'frontlinie-5c58d83b97b9';
 const FILES = ['./index.html', './manifest.webmanifest', './apple-touch-icon.png', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE && k !== 'frontlinie-karten').map(k => caches.delete(k)))).then(() => self.clients.claim())); });
