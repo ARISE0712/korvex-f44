@@ -1,9 +1,9 @@
 // Offline-Speicher mit automatischem Update.
 // Spielseite: zuerst aus dem Netz (dann ist immer die neueste Fassung da), ohne Netz die zuletzt geladene.
-const CACHE = 'frontlinie-5ed658dbf521';
+const CACHE = 'frontlinie-711d3965edef';
 const FILES = ['./index.html', './manifest.webmanifest', './apple-touch-icon.png', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
-self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
+self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE && k !== 'frontlinie-karten').map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 const page = req => req.mode === 'navigate' || /\/(index\.html)?$/.test(new URL(req.url).pathname);
 const timeout = (p, ms) => new Promise((ok, no) => { const t = setTimeout(() => no(new Error('langsam')), ms); p.then(r => { clearTimeout(t); ok(r); }, e => { clearTimeout(t); no(e); }); });
 self.addEventListener('fetch', e => {
@@ -16,5 +16,5 @@ self.addEventListener('fetch', e => {
     }).catch(() => caches.match('./index.html')));
     return;
   }
-  e.respondWith(caches.match(req, { ignoreSearch: true }).then(r => r || fetch(req)));
+  e.respondWith(caches.match(req, { ignoreSearch: true }).then(r => r || fetch(req).then(n => { if (n.ok && req.url.includes('/Frontlinie-1944-Karten/')) { const c = n.clone(); caches.open('frontlinie-karten').then(x => x.put(req, c)); } return n; })));
 });
